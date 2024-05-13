@@ -66,13 +66,13 @@ async function run() {
 
 
         app.get('/logout', (req, res) => {
-           res .clearCookie("token", {
+            res.clearCookie("token", {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",maxAge:0,
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", maxAge: 0,
             }).send({ success: true })
-    
-})
+
+        })
 
 
         app.get('/volunteerNeeds', async (req, res) => {
@@ -95,6 +95,8 @@ async function run() {
 
         app.post('/addVolunteerPost', async (req, res) => {
             const addData = req.body
+
+
             const result = await addVolunteerCollection.insertOne(addData)
             res.send(result)
             console.log(result);
@@ -115,7 +117,7 @@ async function run() {
             //         console.log(decoded);
             //     })
             // }
-            
+
             const query = { email: email }
             const result = await addVolunteerCollection.find(query).toArray()
             res.send(result);
@@ -157,6 +159,18 @@ async function run() {
 
         app.post('/reqVolunteerPost', async (req, res) => {
             const addData = req.body
+            const query = {
+                requestId: addData.requestId,
+                requestEmail: addData.requestEmail
+
+            }
+            const alreadyApplied = await reqVolunteerCollection.findOne(query)
+            console.log(alreadyApplied);
+            if (alreadyApplied) {
+                return res
+                    .status(400)
+                    .send("Already Requested for this post")
+            }
             const result = await reqVolunteerCollection.insertOne(addData)
             res.send(result)
             console.log(result);
