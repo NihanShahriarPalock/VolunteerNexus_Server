@@ -9,7 +9,7 @@ const app = express();
 
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://volunteer-management-8bd59.web.app'],
     credentials: true,
     optionSuccessStatus: 200,
 }
@@ -26,8 +26,6 @@ const verifyToken = (req, res, next) => {
                 console.log(err)
                 return res.status(401).send({ message: 'Unauthorized access' })
             }
-            console.log(decoded)
-
             req.user = decoded
             next()
         })
@@ -93,31 +91,24 @@ async function run() {
             res.send(result);
         })
 
+
+
         app.post('/addVolunteerPost', async (req, res) => {
             const addData = req.body
-
-
             const result = await addVolunteerCollection.insertOne(addData)
             res.send(result)
-            console.log(result);
+
         })
 
+
+
+
         app.get('/myPosts/:email', verifyToken, async (req, res) => {
-            const tokenEmail = req.user.email
+            const tokenEmail = req.user?.email
             const email = req.params.email
             if (tokenEmail !== email) {
                 return res.status(403).send({ message: 'forbidden access' })
             }
-            // const token = req?.cookies?.token
-            // if (token) {
-            //     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-            //         if (err) {
-            //            return console.log(err);
-            //         }
-            //         console.log(decoded);
-            //     })
-            // }
-
             const query = { email: email }
             const result = await addVolunteerCollection.find(query).toArray()
             res.send(result);
@@ -157,6 +148,21 @@ async function run() {
         })
 
 
+        //Test Update Value
+        app.put("/reqUpdateAvailable/:id", async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) }
+            const data = {
+                $set: {
+                    volunteersNeeded: req.body.x,
+
+                }
+            }
+
+            const result = await addVolunteerCollection.updateOne(query, data)
+            res.send(result)
+        })
+
+
         app.post('/reqVolunteerPost', async (req, res) => {
             const addData = req.body
             const query = {
@@ -172,9 +178,19 @@ async function run() {
                     .send("Already Requested for this post")
             }
             const result = await reqVolunteerCollection.insertOne(addData)
+
+            //Update Test Code 
+            // const volunteersNeededInt = parseInt(volunteersNeeded)
+            // const updateDoc = {
+            //     $set: { $inc:{ volunteersNeeded : -1}},
+            // }
+            // const jobQuery = { _id: new ObjectId(addData.volunteersNeeded)}
+            // const updateAvailableCount = await addVolunteerCollection.updateOne(jobQuery,updateDoc)
             res.send(result)
             console.log(result);
         })
+
+
 
         app.get('/reqFilteredPost/:postedEmail', async (req, res) => {
             const postedEmail = req.params.postedEmail
@@ -195,7 +211,6 @@ async function run() {
     }
 }
 run().catch(console.dir);
-
 
 
 app.get('/', (req, res) => {
