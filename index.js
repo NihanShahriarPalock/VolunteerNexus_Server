@@ -94,6 +94,7 @@ async function run() {
 
 
         app.post('/addVolunteerPost', async (req, res) => {
+            
             const addData = req.body
             const result = await addVolunteerCollection.insertOne(addData)
             res.send(result)
@@ -107,7 +108,7 @@ async function run() {
             const tokenEmail = req.user?.email
             const email = req.params.email
             if (tokenEmail !== email) {
-                return res.status(403).send({ message: 'forbidden access' })
+                return res.status(403).send({ message: 'Forbidden Access' })
             }
             const query = { email: email }
             const result = await addVolunteerCollection.find(query).toArray()
@@ -192,8 +193,12 @@ async function run() {
 
 
 
-        app.get('/reqFilteredPost/:postedEmail', async (req, res) => {
+        app.get('/reqFilteredPost/:postedEmail',verifyToken, async (req, res) => {
+            const tokenEmail = req.user?.email
             const postedEmail = req.params.postedEmail
+            if (tokenEmail !== postedEmail) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
             const query = { postedEmail: postedEmail }
             const result = await reqVolunteerCollection.find(query).toArray()
             res.send(result);
@@ -207,7 +212,6 @@ async function run() {
             const sort = req.query.sort
             const search = req.query.search
             
-
             let query = {
                 postTitle: { $regex: search, $options: 'i' },
             }
