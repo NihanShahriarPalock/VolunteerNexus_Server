@@ -180,13 +180,7 @@ async function run() {
             }
             const result = await reqVolunteerCollection.insertOne(addData)
 
-            //Update Test Code 
-            // const volunteersNeededInt = parseInt(volunteersNeeded)
-            // const updateDoc = {
-            //     $set: { $inc:{ volunteersNeeded : -1}},
-            // }
-            // const jobQuery = { _id: new ObjectId(addData.volunteersNeeded)}
-            // const updateAvailableCount = await addVolunteerCollection.updateOne(jobQuery,updateDoc)
+
             res.send(result)
             console.log(result);
         })
@@ -239,11 +233,10 @@ async function run() {
         })
 
 
-        // await client.db("admin").command({ ping: 1 });
+       
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+       
     }
 }
 run().catch(console.dir);
